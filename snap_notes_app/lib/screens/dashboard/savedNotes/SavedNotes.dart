@@ -41,8 +41,8 @@ class _SavedNotesState extends State<SavedNotes> {
                 itemBuilder: (context,index){
                   return Container(margin: EdgeInsets.only(bottom: 20),width: double.infinity,decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
                     gradient: LinearGradient(colors: [
-                      cardColor[index].withOpacity(0.5),
-                      cardColor[index]
+                      Color(int.parse(cardColor[index])).withOpacity(0.5),
+                      Color(int.parse(cardColor[index]))
                     ],
                         begin: Alignment.topRight,end: Alignment.bottomLeft),),
                     child: Padding(

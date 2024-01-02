@@ -44,8 +44,8 @@ class _CategoriesState extends State<Categories> {
                 children:[ Container(
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
                     gradient: LinearGradient(colors: [
-                      cardColor[index].withOpacity(0.5),
-                      cardColor[index]
+                      Color(int.parse(cardColor[index])).withOpacity(0.5),
+                      Color(int.parse(cardColor[index]))
                     ],
                         begin: Alignment.topRight,end: Alignment.bottomLeft),),
                   alignment: Alignment.center,

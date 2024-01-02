@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:snap_notes_app/screens/dashboard/Dashboard.dart';
-import 'package:snap_notes_app/themes/ThemeManager.dart';
+import 'package:snap_notes_app/services/databaseManager/NotesDatabaseManager.dart';
 import 'package:snap_notes_app/themes/ThemeNotifier.dart';
 import 'package:snap_notes_app/utils/ColorUtils.dart';
 import 'package:snap_notes_app/utils/FontUtils.dart';
@@ -36,10 +36,13 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
+  NotesDatabaseManager notesDatabaseManager = NotesDatabaseManager();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    notesDatabaseManager.initializeDatabase();
         Future.delayed(Duration(seconds: 3),(){
           Navigator.push(
             context,

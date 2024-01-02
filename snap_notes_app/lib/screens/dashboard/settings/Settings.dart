@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:snap_notes_app/screens/feedback/Feedback.dart';
 import 'package:snap_notes_app/utils/ColorUtils.dart';
 import 'package:snap_notes_app/utils/DataUtils.dart';
 
@@ -27,7 +28,7 @@ class _SettingsState extends State<Settings> {
           child: Column(mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InkWell(onTap: (){
+              GestureDetector(onTap: (){
                 clickGeneralOptionFunction(index);
               },
                 child: Row(mainAxisAlignment: MainAxisAlignment.start,
@@ -63,32 +64,36 @@ class _SettingsState extends State<Settings> {
           physics: NeverScrollableScrollPhysics(),
           itemCount: DataUtils.feedbackOptions().length,
           itemBuilder: (context,index){
-            return Container(margin: EdgeInsets.only(bottom: 15),
-              child: Column(mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.person,color: ColorUtils.appLogoColor),
-                      SizedBox(width: 22,),
-                      CustomText(
-                        text: DataUtils.feedbackOptions()[index].title,
-                        fontSize: 13.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                        textAlign: TextAlign.start,
-                      ),
+            return GestureDetector(onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>  FeedbackPage(type: index,)),);
+            },
+              child: Container(margin: EdgeInsets.only(bottom: 15),
+                child: Column(mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.person,color: ColorUtils.appLogoColor),
+                        SizedBox(width: 22,),
+                        CustomText(
+                          text: DataUtils.feedbackOptions()[index].title,
+                          fontSize: 13.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                          textAlign: TextAlign.start,
+                        ),
 
-                      Spacer(),
+                        Spacer(),
 
-                      Icon(Icons.arrow_forward_ios_outlined,size: 18,color: ColorUtils.appLogoColor.withOpacity(0.5),)
-                    ],),
+                        Icon(Icons.arrow_forward_ios_outlined,size: 18,color: ColorUtils.appLogoColor.withOpacity(0.5),)
+                      ],),
 
-                  SizedBox(height: 10,),
+                    SizedBox(height: 10,),
 
-                  Divider(height: 1,color: Colors.grey.withOpacity(0.3),)
-                ],
+                    Divider(height: 1,color: Colors.grey.withOpacity(0.3),)
+                  ],
+                ),
               ),
             );
           });
@@ -198,7 +203,7 @@ class _SettingsState extends State<Settings> {
 
                   SizedBox(height: 20,),
 
-                  InkWell(onTap: (){
+                  GestureDetector(onTap: (){
                     Provider.of<ThemeNotifier>(context, listen: false).toggleTheme();
                   },
                     child: Row(
@@ -238,4 +243,5 @@ class _SettingsState extends State<Settings> {
     }
 
   }
+
 }

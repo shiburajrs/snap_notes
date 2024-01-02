@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
 
+import '../../../models/Notes.dart';
+import '../../../services/databaseManager/NotesDatabaseManager.dart';
 import '../../../utils/ColorUtils.dart';
+import '../../../utils/CustomData.dart';
 import '../../../utils/FontUtils.dart';
-import '../../../widgets/customMultiStyleTextfield/CustomMultiStyleTextField.dart';
 
 class AddNotes extends StatefulWidget {
-  const AddNotes({super.key});
+   AddNotes({super.key, this.addedNote});
+  Note? addedNote;
 
   @override
   State<AddNotes> createState() => _AddNotesState();
 }
 
-class _AddNotesState extends State<AddNotes> {
+class _AddNotesState extends State<AddNotes>{
 
   TextEditingController titleController = TextEditingController();
   TextEditingController contentController = TextEditingController();
   bool _isBold = false;
+  NotesDatabaseManager notesDatabaseManager = NotesDatabaseManager();
+  String? selectedColor = null;
+  int? selectedColorIndex = null;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    notesDatabaseManager.initializeDatabase();
+    previousNote(widget.addedNote);
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
+
     
     Widget noteEditBar(){
       return Container(color: Colors.grey.withOpacity(0.3),
@@ -93,33 +110,141 @@ class _AddNotesState extends State<AddNotes> {
 
     Widget saveButton(){
       return Center(
-        child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),
-          color: ColorUtils.appLogoColor,),
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: CustomText(
-              text: 'Save Note',
-              fontSize: 15.0,
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              textAlign: TextAlign.center,
+        child: GestureDetector(onTap: (){
+          saveNote();
+        },
+          child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),
+            color: ColorUtils.appLogoColor,),
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: CustomText(
+                text: 'Save Note',
+                fontSize: 15.0,
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),
       );
     }
+
+
+    Widget modalSheetOptions() {
+      return ListView.builder(
+          shrinkWrap: true,
+          itemCount: CustomData.notesOptionsData.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // CustomWidgets.noteOptionsIcon(
+                  //     CustomData.notesOptionsData[index].image),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  CustomText(
+                    text: CustomData.notesOptionsData[index].title,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          });
+    }
+
+    void _settingModalBottomSheet(context) {
+      showModalBottomSheet(
+          context: context,
+          builder: (BuildContext bc) {
+            return StatefulBuilder(
+                builder: (context, setState) {
+                  return Container(height: 300,
+                    decoration:  BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25))),
+                    width: MediaQuery.of(context).size.width,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 30, left: 15, right: 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: SizedBox(
+                              height: 35,
+                              child: ListView.builder(
+                                  itemCount: CustomData.colorList.length,
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    return GestureDetector(onTap: (){
+                                      setState(() {
+                                        selectedColorIndex = index;
+                                        selectedColor = CustomData.colorList[index].toString();
+                                      });
+
+                                    },
+                                      child: Container(
+                                        height: 35,
+                                        width: 35,
+                                        child: Center(child: Visibility(visible: selectedColorIndex == index,
+                                            child: Icon(Icons.check,size: 20,color: Colors.white,)),),
+                                        decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(50),
+                                            color: Color(int.parse(CustomData.colorList[index]))),
+                                        margin: EdgeInsets.only(
+                                            right: index != 0 ? 10 : 0,
+                                            left: index == 1 ? 10 : 0),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          modalSheetOptions()
+                        ],
+                      ),
+                    ),
+                  );
+                },
+            );
+          });
+    }
     
     return  Scaffold(
       appBar:AppBar(automaticallyImplyLeading: false,
       backgroundColor: ColorUtils.appLogoColor.withOpacity(0.7),
-      title: Center(
-        child: CustomText(
-          text: 'Add Notes',
-          fontSize: 18.0,
-          color: Colors.black,
-          fontWeight: FontWeight.w700,
-          textAlign: TextAlign.center,
-        ),
+      title: Row(
+        children: [
+          Spacer(),
+          Center(
+            child: CustomText(
+              text: widget.addedNote == null ? 'Add Notes' : widget.addedNote?.title??"",
+              fontSize: 18.0,
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ),
+          ),
+
+          Spacer(),
+          
+          GestureDetector(child: Icon(Icons.more_vert_sharp),onTap: (){
+            _settingModalBottomSheet(context);
+          },)
+        ],
       ),
     ),
 
@@ -139,14 +264,14 @@ class _AddNotesState extends State<AddNotes> {
 
           contentField(),
 
-        //   SizedBox(height: 10,),
+          SizedBox(height: 20,),
         //
         // TextField(
         //   controller: MultiStyleTextEditingController()
         //     ..text = "This is blue text and this is italic",
         // )
 
-          //saveButton()
+          saveButton()
 
         ],),
       ),
@@ -168,4 +293,42 @@ class _AddNotesState extends State<AddNotes> {
       );
     });
   }
+
+  void saveNote()async{
+
+    if(widget.addedNote != null){
+      Note notesData = Note(id:widget.addedNote?.id,title: titleController.text, content: contentController.text, createdAt: DateTime.now().toString(), category: "Test",color: selectedColor == null ? ColorUtils.cardColor1.toString() : selectedColor);
+      try {
+        // Call insertNote function
+        int insertedNoteId = await notesDatabaseManager.updateNote(notesData);;
+        print('Inserted note with ID: $insertedNoteId');
+      } catch (e) {
+        print('Error inserting note: $e');
+      } finally {
+        // Close the database when done (optional)
+        // await notesDatabaseManager.closeDatabase();
+      }
+    } else {
+    Note notesData = Note(title: titleController.text, content: contentController.text, createdAt: DateTime.now().toString(), category: "Test",color: selectedColor == null ? ColorUtils.cardColor1.toString() : selectedColor);
+    try {
+      // Call insertNote function
+      int insertedNoteId = await notesDatabaseManager.insertNote(notesData);;
+      print('Inserted note with ID: $insertedNoteId');
+    } catch (e) {
+      print('Error inserting note: $e');
+    } finally {
+      // Close the database when done (optional)
+      // await notesDatabaseManager.closeDatabase();
+    } }
+  }
+
+  void previousNote(Note? previousNotes){
+    if(previousNotes != null) {
+      titleController.text = previousNotes.title??"";
+      contentController.text = previousNotes.content;
+      selectedColor = previousNotes.color??"";
+    }
+  }
+
+
 }
